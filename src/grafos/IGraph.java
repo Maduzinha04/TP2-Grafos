@@ -2,10 +2,13 @@
 package grafos;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public interface IGraph {
 
     GraphType type();
+
+    boolean isWeighted();
 
     List<Vertex> vertices();
 
@@ -19,7 +22,11 @@ public interface IGraph {
 
     List<Edge> adj(int u);
 
+    void forEachAdjacent(int u, Consumer<Edge> action);
+
     int numVertices();
 
     int numEdges();
+
+    String formatar();
 }
