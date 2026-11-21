@@ -1,91 +1,49 @@
 
 import grafos.*;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Stream;
+import algoritmos.OrdenacaoTopologica;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        int aprovados = 0;
-        int erros = 0;
+        IGraph lista = new AdjListGraph(
+            6, GraphType.DIRECTED
+        );
 
-        try (Stream<Path> arquivos = Files.list(Path.of("dados"))) {
+        IGraph matriz = new AdjMatrixGraph(
+            6, GraphType.DIRECTED
+        );
 
-            List<Path> grafos = arquivos
-                .filter(p -> p.toString().endsWith(".gr"))
-                .sorted()
-                .toList();
+        int[][] arestas = {
+            {0, 1},
+            {0, 2},
+            {1, 2},
+            {1, 3},
+            {2, 3}
+        };
 
-            for (Path arquivo : grafos) {
-
-                try {
-                    IGraph lista = LeitorGrafo.ler(
-                        arquivo.toString(), false
-                    );
-
-                    IGraph matriz = LeitorGrafo.ler(
-                        arquivo.toString(), true
-                    );
-
-                    boolean iguais =
-                        lista.numVertices() == matriz.numVertices()
-                        && lista.numEdges() == matriz.numEdges();
-
-                    if (iguais) {
-
-                        for (Edge aresta : lista.edges()) {
-
-                            int u = aresta.getU().getId();
-                            int v = aresta.getV().getId();
-
-                            Edge outra = matriz.getEdge(u, v);
-
-                            if (outra == null ||
-                                Double.compare(
-                                    aresta.getWeight(),
-                                    outra.getWeight()
-                                ) != 0) {
-
-                                iguais = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (iguais) {
-                        System.out.println(
-                            "[OK] " + arquivo.getFileName()
-                            + " | V=" + lista.numVertices()
-                            + " | E=" + lista.numEdges()
-                        );
-                        aprovados++;
-                    } else {
-                        System.out.println(
-                            "[ERRO] " + arquivo.getFileName()
-                            + " | Representacoes diferentes"
-                        );
-                        erros++;
-                    }
-
-                } catch (Exception e) {
-                    System.out.println(
-                        "[ERRO] " + arquivo.getFileName()
-                        + " | " + e.getMessage()
-                    );
-                    erros++;
-                }
-            }
-
-            System.out.println("\n===== RESUMO =====");
-            System.out.println("Aprovados: " + aprovados);
-            System.out.println("Erros: " + erros);
-
-        } catch (Exception e) {
-            System.out.println("Erro: " + e.getMessage());
+        for (int[] aresta : arestas) {
+            lista.addEdge(aresta[0], aresta[1]);
+            matriz.addEdge(aresta[0], aresta[1]);
         }
+
+        System.out.println("Topologica - Lista: "
+            + OrdenacaoTopologica.executar(lista));
+
+        System.out.println("Topologica - Matriz: "
+            + OrdenacaoTopologica.executar(matriz));
+
+            IGraph ciclo = new AdjListGraph(3, GraphType.DIRECTED);
+
+            ciclo.addEdge(0, 1);
+            ciclo.addEdge(1, 2);
+            ciclo.addEdge(2, 0);
+
+            try {
+                System.out.println(OrdenacaoTopologica.executar(ciclo));
+            } catch (IllegalArgumentException e) {
+                System.out.println("Ciclo detectado: " + e.getMessage());
+            }
     }
+    
 }
