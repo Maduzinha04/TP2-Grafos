@@ -1,55 +1,84 @@
 
 import grafos.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        IGraph grafo = new AdjMatrixGraph(
-            4, GraphType.DIRECTED
-        );
+        Path pasta = Path.of("dados");
 
-        grafo.addEdge(0, 1, 5);
-        grafo.addEdge(0, 2, 3);
-        grafo.addEdge(1, 2, 2);
-        grafo.addEdge(2, 3, 4);
+        int aprovados = 0;
+        int erros = 0;
 
-        System.out.println("Tipo: " + grafo.type());
-        System.out.println("Vertices: " + grafo.numVertices());
-        System.out.println("Arestas: " + grafo.numEdges());
+        try (Stream<Path> arquivos = Files.list(pasta)) {
 
-        System.out.println("\nMatriz de adjacencia:");
+            List<Path> grafos = arquivos
+                .filter(p -> p.toString().endsWith(".gr"))
+                .sorted()
+                .toList();
 
-        System.out.print("    ");
+            System.out.println("Arquivos encontrados: " + grafos.size());
+            System.out.println();
 
-        for (int j = 0; j < grafo.numVertices(); j++) {
-            System.out.printf("%6d", j);
-        }
+            for (Path arquivo : grafos) {
 
-        System.out.println();
-
-        for (int i = 0; i < grafo.numVertices(); i++) {
-
-            System.out.printf("%4d", i);
-
-            for (int j = 0; j < grafo.numVertices(); j++) {
-
-                Edge edge = grafo.getEdge(i, j);
-
-                if (edge == null) {
-                    System.out.printf("%6s", "-");
-                } else {
-                    System.out.printf(
-                        "%6.1f", edge.getWeight()
+                try {
+                    IGraph lista = LeitorGrafo.ler(
+                        arquivo.toString(), false
                     );
+
+                    IGraph matriz = LeitorGrafo.ler(
+                        arquivo.toString(), true
+                    );
+
+                    boolean valido =
+                        lista.numVertices() == matriz.numVertices()
+                        && lista.numEdges() == matriz.numEdges();
+
+                    if (valido) {
+                        System.out.println(
+                            "[OK] " + arquivo.getFileName()
+                            + " | V=" + lista.numVertices()
+                            + " | E=" + lista.numEdges()
+                        );
+                        aprovados++;
+                    } else {
+                        System.out.println(
+                            "[ERRO] " + arquivo.getFileName()
+                            + " | Contagens diferentes"
+                        );
+                        erros++;
+                    }
+
+                } catch (Exception e) {
+                    System.out.println(
+                        "[ERRO] " + arquivo.getFileName()
+                        + " | " + e.getMessage()
+                    );
+                    erros++;
                 }
             }
 
             System.out.println();
-        }
+            System.out.println("===== RESUMO =====");
+            System.out.println("Aprovados: " + aprovados);
+            System.out.println("Erros: " + erros);
 
-        System.out.println(
-            "\nAresta 0 -> 1: " + grafo.getEdge(0, 1)
-        );
+            if (grafos.size() != 15) {
+                System.out.println(
+                    "ATENCAO: Esperados 15 arquivos .gr."
+                );
+            }
+
+        } catch (IOException e) {
+            System.out.println(
+                "Erro ao acessar a pasta dados: " + e.getMessage()
+            );
+        }
     }
 }

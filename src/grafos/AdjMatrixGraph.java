@@ -55,39 +55,32 @@ public class AdjMatrixGraph implements IGraph {
         addEdge(u, v, 1.0);
     }
 
-    @Override
-    public void addEdge(int u, int v, double weight) {
+   @Override
+public void addEdge(int u, int v, double weight) {
 
-        validateVertex(u);
-        validateVertex(v);
+    validateVertex(u);
+    validateVertex(v);
 
-        // Impede duplicacao da mesma conexao.
-        if (matrix[u][v] != null) {
-            throw new IllegalArgumentException(
-                "Aresta ja existe: " + u + " -> " + v
-            );
-        }
+    Edge edge = new Edge(
+        vertices.get(u),
+        vertices.get(v),
+        weight
+    );
 
-        Edge edge = new Edge(
-            vertices.get(u),
+    edges.add(edge);
+    matrix[u][v] = edge;
+
+    if (type == GraphType.UNDIRECTED && u != v) {
+
+        Edge reverse = new Edge(
             vertices.get(v),
+            vertices.get(u),
             weight
         );
 
-        edges.add(edge);
-        matrix[u][v] = edge;
-
-        if (type == GraphType.UNDIRECTED && u != v) {
-
-            Edge reverse = new Edge(
-                vertices.get(v),
-                vertices.get(u),
-                weight
-            );
-
-            matrix[v][u] = reverse;
-        }
+        matrix[v][u] = reverse;
     }
+}
 
     @Override
     public Edge getEdge(int u, int v) {
