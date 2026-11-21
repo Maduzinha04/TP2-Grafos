@@ -72,7 +72,7 @@ public class Main {
                 IGraph kruskal = GrafosExemplo.agmKruskalLista();
                 cabecalho("Kruskal", "Lista de Adjacencia", "Nao-direcionado, ponderado");
                 System.out.println(kruskal.formatar());
-                medir(() -> Kruskal.executar(kruskal), "Resultado");
+                medir(() -> Kruskal2.executar(kruskal), "Resultado");
                 break;
             case 5:
                 IGraph prim = GrafosExemplo.agmPrimLista();

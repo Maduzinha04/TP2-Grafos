@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class Kruskal {
-    private Kruskal() {}
+public class Kruskal2 {
+    private Kruskal2() {}
 
     public static ResultadoAGM executar(IGraph grafo) {
         if (grafo.type() != GraphType.UNDIRECTED) {
