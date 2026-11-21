@@ -50,11 +50,11 @@ public class LeitorGrafo {
 
                     if (usarMatriz) {
                         grafo = new AdjMatrixGraph(
-                            numVertices, GraphType.DIRECTED
+                            numVertices, GraphType.DIRECTED, true
                         );
                     } else {
                         grafo = new AdjListGraph(
-                            numVertices, GraphType.DIRECTED
+                            numVertices, GraphType.DIRECTED, true
                         );
                     }
 
