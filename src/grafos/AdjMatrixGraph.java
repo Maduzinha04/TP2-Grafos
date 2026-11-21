@@ -50,37 +50,49 @@ public class AdjMatrixGraph implements IGraph {
         return new ArrayList<>(edges);
     }
 
+   
     @Override
     public void addEdge(int u, int v) {
         addEdge(u, v, 1.0);
     }
 
-   @Override
-public void addEdge(int u, int v, double weight) {
+    @Override
+    public void addEdge(int u, int v, double weight) {
 
-    validateVertex(u);
-    validateVertex(v);
+        validateVertex(u);
+        validateVertex(v);
 
-    Edge edge = new Edge(
-        vertices.get(u),
-        vertices.get(v),
-        weight
-    );
+        Edge existente = matrix[u][v];
 
-    edges.add(edge);
-    matrix[u][v] = edge;
+        if (existente != null) {
 
-    if (type == GraphType.UNDIRECTED && u != v) {
+            if (weight >= existente.getWeight()) {
+                return;
+            }
 
-        Edge reverse = new Edge(
-            vertices.get(v),
+            edges.remove(existente);
+        }
+
+        Edge nova = new Edge(
             vertices.get(u),
+            vertices.get(v),
             weight
         );
 
-        matrix[v][u] = reverse;
+        matrix[u][v] = nova;
+        edges.add(nova);
+
+        if (type == GraphType.UNDIRECTED && u != v) {
+
+            Edge inversa = new Edge(
+                vertices.get(v),
+                vertices.get(u),
+                weight
+            );
+
+            matrix[v][u] = inversa;
+        }
     }
-}
 
     @Override
     public Edge getEdge(int u, int v) {

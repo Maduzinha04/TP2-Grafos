@@ -1,6 +1,6 @@
 
 import grafos.*;
-import java.io.IOException;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -10,20 +10,15 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Path pasta = Path.of("dados");
-
         int aprovados = 0;
         int erros = 0;
 
-        try (Stream<Path> arquivos = Files.list(pasta)) {
+        try (Stream<Path> arquivos = Files.list(Path.of("dados"))) {
 
             List<Path> grafos = arquivos
                 .filter(p -> p.toString().endsWith(".gr"))
                 .sorted()
                 .toList();
-
-            System.out.println("Arquivos encontrados: " + grafos.size());
-            System.out.println();
 
             for (Path arquivo : grafos) {
 
@@ -36,11 +31,32 @@ public class Main {
                         arquivo.toString(), true
                     );
 
-                    boolean valido =
+                    boolean iguais =
                         lista.numVertices() == matriz.numVertices()
                         && lista.numEdges() == matriz.numEdges();
 
-                    if (valido) {
+                    if (iguais) {
+
+                        for (Edge aresta : lista.edges()) {
+
+                            int u = aresta.getU().getId();
+                            int v = aresta.getV().getId();
+
+                            Edge outra = matriz.getEdge(u, v);
+
+                            if (outra == null ||
+                                Double.compare(
+                                    aresta.getWeight(),
+                                    outra.getWeight()
+                                ) != 0) {
+
+                                iguais = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (iguais) {
                         System.out.println(
                             "[OK] " + arquivo.getFileName()
                             + " | V=" + lista.numVertices()
@@ -50,7 +66,7 @@ public class Main {
                     } else {
                         System.out.println(
                             "[ERRO] " + arquivo.getFileName()
-                            + " | Contagens diferentes"
+                            + " | Representacoes diferentes"
                         );
                         erros++;
                     }
@@ -64,21 +80,12 @@ public class Main {
                 }
             }
 
-            System.out.println();
-            System.out.println("===== RESUMO =====");
+            System.out.println("\n===== RESUMO =====");
             System.out.println("Aprovados: " + aprovados);
             System.out.println("Erros: " + erros);
 
-            if (grafos.size() != 15) {
-                System.out.println(
-                    "ATENCAO: Esperados 15 arquivos .gr."
-                );
-            }
-
-        } catch (IOException e) {
-            System.out.println(
-                "Erro ao acessar a pasta dados: " + e.getMessage()
-            );
+        } catch (Exception e) {
+            System.out.println("Erro: " + e.getMessage());
         }
     }
 }

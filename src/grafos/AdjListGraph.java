@@ -56,31 +56,52 @@ public class AdjListGraph implements IGraph {
         addEdge(u, v, 1.0);
     }
 
-    @Override
-    public void addEdge(int u, int v, double weight) {
+   
+@Override
+public void addEdge(int u, int v, double weight) {
 
-        validateVertex(u);
-        validateVertex(v);
+    validateVertex(u);
+    validateVertex(v);
 
-        Edge edge = new Edge(
-            vertices.get(u),
+    Edge existente = getEdge(u, v);
+
+    if (existente != null) {
+
+        if (weight >= existente.getWeight()) {
+            return;
+        }
+
+        edges.remove(existente);
+        adj.get(u).remove(existente);
+
+        if (type == GraphType.UNDIRECTED && u != v) {
+
+            Edge inversa = getEdge(v, u);
+            adj.get(v).remove(inversa);
+        }
+    }
+
+    Edge nova = new Edge(
+        vertices.get(u),
+        vertices.get(v),
+        weight
+    );
+
+    edges.add(nova);
+    adj.get(u).add(nova);
+
+    if (type == GraphType.UNDIRECTED && u != v) {
+
+        Edge inversa = new Edge(
             vertices.get(v),
+            vertices.get(u),
             weight
         );
 
-        edges.add(edge);
-        adj.get(u).add(edge);
-
-        if (type == GraphType.UNDIRECTED && u != v) {
-            Edge reverse = new Edge(
-                vertices.get(v),
-                vertices.get(u),
-                weight
-            );
-
-            adj.get(v).add(reverse);
-        }
+        adj.get(v).add(inversa);
     }
+}
+
 
     @Override
     public Edge getEdge(int u, int v) {
